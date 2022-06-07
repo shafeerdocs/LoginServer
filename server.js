@@ -3,15 +3,18 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const db = require('_helpers/db');
 const jwt = require('_helpers/jwt');
 const errorHandler = require('_helpers/error-handler');
+const logger = require('morgan');
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(cors());
+app.use(logger('dev'));
 
 // use JWT auth to secure the api
-app.use(jwt());
+//app.use(jwt());
 
 // api routes
 app.use('/users', require('./users/users.controller'));

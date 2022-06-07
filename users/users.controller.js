@@ -5,6 +5,7 @@ const userService = require('./user.service');
 // routes
 router.post('/authenticate', authenticate);
 router.post('/register', register);
+router.get('/logout/:id', logout);
 router.get('/', getAll);
 router.get('/current', getCurrent);
 router.get('/:id', getById);
@@ -14,8 +15,21 @@ router.delete('/:id', _delete);
 module.exports = router;
 
 function authenticate(req, res, next) {
+
     userService.authenticate(req.body)
-        .then(user => user ? res.json(user) : res.status(400).json({ message: 'Username or password is incorrect' }))
+        .then(user => {
+            
+            if(user && user.loggedIn){
+                return res.status(400).json({ message: 'User aleready logged in please logout from other first' })
+            }else if(user && !user.loggedIn){
+                userService.updateLoggedStatus(user, true).then(() => {
+                    return res.json(user)
+                })
+                
+            }else{
+return res.status(400).json({ message: 'Username or password is incorrect' })
+            }
+        })
         .catch(err => next(err));
 }
 
@@ -52,5 +66,19 @@ function update(req, res, next) {
 function _delete(req, res, next) {
     userService.delete(req.params.id)
         .then(() => res.json({}))
+        .catch(err => next(err));
+}
+
+function logout(req, res, next) {
+    userService.getById(req.params.id)
+        .then(user => {
+            if(user){
+                userService.updateLoggedStatus(user, false).then((ddd) => {
+                    return res.json(user)
+                })
+            }else{
+                return res.sendStatus(404) 
+            }
+        })
         .catch(err => next(err));
 }

@@ -6,9 +6,13 @@ const schema = new Schema({
     hash: { type: String, required: true },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
+    role: { type: String, required: true },
+    loggedIn: { type: Boolean, default: false,required: true},
+    loginHistory: { type: Date, default: Date.now , required: true},
+    logoutHistory: { type: Date, default: Date.now , required: true},
     createdDate: { type: Date, default: Date.now }
 });
 
-schema.set('toJSON', { virtuals: true });
+
 
 module.exports = mongoose.model('User', schema);

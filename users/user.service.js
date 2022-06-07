@@ -10,11 +10,17 @@ module.exports = {
     getById,
     create,
     update,
+    updateLoggedStatus,
     delete: _delete
 };
 
 async function authenticate({ username, password }) {
+    console.log(username, password)
+    User.findOne({ username: "sss" }).exec((err, slots) => {
+        console.log(slots)
+    })
     const user = await User.findOne({ username });
+    console.log("user", user)
     if (user && bcrypt.compareSync(password, user.hash)) {
         const { hash, ...userWithoutHash } = user.toObject();
         const token = jwt.sign({ sub: user.id }, config.secret);
@@ -72,4 +78,15 @@ async function update(id, userParam) {
 
 async function _delete(id) {
     await User.findByIdAndRemove(id);
+}
+
+async function updateLoggedStatus(user, isLoggedIn){
+    let loginHistory = user.loginHistory;
+    let logoutHistory = user.logoutHistory;
+    if(isLoggedIn){
+loginHistory = Date.now();
+    }else{
+        logoutHistory = Date.now();
+    }
+    await User.findByIdAndUpdate(user._id, {loggedIn : isLoggedIn, loginHistory: loginHistory, logoutHistory: logoutHistory})
 }
